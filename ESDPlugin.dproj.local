@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2021/07/29 15:10:04.000.239,=C:\Users\andyb\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2021/08/11 12:56:19.000.232,=C:\Users\andyb\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>2021/08/11 12:57:37.000.603,=C:\Users\andyb\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>2021/08/11 12:58:39.000.220,C:\Users\andyb\Documents\Embarcadero\Studio\Projects\ESDPlugin\ESDPlugin.dproj=C:\Users\andyb\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>2021/08/11 14:10:23.000.794,=C:\Users\andyb\Documents\Embarcadero\Studio\Projects\ESDPlugin\Unit1.pas</Transaction>
+    <Transaction>2021/08/11 14:11:09.000.359,C:\Users\andyb\Documents\Embarcadero\Studio\Projects\ESDPlugin\ESDModule.pas=C:\Users\andyb\Documents\Embarcadero\Studio\Projects\ESDPlugin\Unit1.pas</Transaction>
+  </Transactions>
+</BorlandProject>
