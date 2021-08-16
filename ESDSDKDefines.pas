@@ -22,7 +22,7 @@ unit ESDSDKDefines;
 interface
 
 uses
-	System.SysUtils;
+	System.SysUtils, System.Classes, System.NetEncoding;
 
 const
 
@@ -172,8 +172,33 @@ type
 	ESDSDKTarget = (kESDSDKTarget_HardwareAndSoftware = 0, kESDSDKTarget_HardwareOnly = 1, kESDSDKTarget_SoftwareOnly = 2);
 	ESDSDKDeviceType = (kESDSDKDeviceType_StreamDeck = 0, kESDSDKDeviceType_StreamDeckMini = 1, kESDSDKDeviceType_StreamDeckXL = 2, kESDSDKDeviceType_StreamDeckMobile = 3);
 
+function GetBase64Image(FileName: String): String;
+
 implementation
 
+function GetBase64Image(FileName: String): String;
+var
+    Reader: TMemoryStream;
+    Output: TStringStream;
+    Base64: TBase64Encoding;
 begin
-	
+    if Length(FileName) > 0  then
+        begin
+        Reader := TMemoryStream.Create;
+        Output := TStringStream.Create;
+        try
+            Reader.LoadFromFile(FileName);
+            Base64 := TBase64Encoding.Create(0);
+            if Base64.Encode(Reader, Output) > 0 then
+            	begin
+	            Result := Output.DataString;
+                end;
+            finally
+                FreeAndNil(Reader);
+                FreeAndNil(Output);
+            end;
+        end;
+end;
+
 end.
+
