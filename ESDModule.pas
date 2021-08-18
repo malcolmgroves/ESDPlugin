@@ -87,7 +87,7 @@ end;
 
 procedure	TESDPlugin.KeyDownForAction(const Action, Context: String; const JSONPayload: TJSONObject; const DeviceID: String);
 begin
-    // Nothing to do yet
+    GConnectionManager.SetImage(GetBase64Image('C:\Users\andyb\AppData\Roaming\Elgato\StreamDeck\IconPacks\de.streamdeck-fx.sdfxmatrix.sdIconPack\icons\elgato_fx_matrix_025_30C900.png'), Context, kESDSDKTarget_HardwareAndSoftware);
 end;
 
 //*************************************************************//

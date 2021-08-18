@@ -55,7 +55,7 @@ type
 
         // API to communicate with the Stream Deck Application
         procedure	SetTitle(const Title, Context: String; Target: ESDSDKTarget);
-        procedure	SetImage(const Png64, Context: String; Target: ESDSDKTarget);
+		procedure	SetImage(const Image64, Context: String; Target: ESDSDKTarget; const MimeType: ESDSDKMimeTypes = kESDSDKMimeType_png);
         procedure	ShowAlertForContext(const Context: String);
         procedure	ShowOKForContext(const Context: String);
         procedure	SetSettings(const JSONSettings: TJSONObject; const Context: String);
@@ -343,22 +343,29 @@ end;
 
 //*************************************************************//
 
-procedure TESDConnectionManager.SetImage(const Png64, Context: String; Target: ESDSDKTarget);
-const
-	Prefix = 'data:image/png;base64,';
+procedure TESDConnectionManager.SetImage(const Image64, Context: String; Target: ESDSDKTarget; const MimeType: ESDSDKMimeTypes);
 var
     JSONObject, JSONPayload: TJSONObject;
+    Prefix: String;
 begin
+    case MimeType of
+        kESDSDKMimeType_jpg: Prefix := 'data:image/jpg;base64,';
+        kESDSDKMimeType_bmp: Prefix := 'data:image/bmp;base64,';
+        kESDSDKMimeType_svg: Prefix := 'data:image/svg+xml;charset=utf8,';
+    else
+        Prefix := 'data:image/png;base64,';
+    end;
+
     JSONObject := TJSONObject.Create;
     JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSetImage);
     JSONObject.AddPair(kESDSDKCommonContext, Context);
 
     JSONPayload := TJSONObject.Create;
     JSONPayload.AddPair(kESDSDKPayloadTarget, TJSONNumber.Create(Ord(Target)));
-    if (Length(Png64) = 0) or (Pos(Prefix, Png64) = 1) then
-	    JSONPayload.AddPair(kESDSDKPayloadImage, Png64)
+    if (Length(Image64) = 0) or (Pos(Prefix, Image64) = 1) then
+	    JSONPayload.AddPair(kESDSDKPayloadImage, Image64)
     else
-        JSONPayload.AddPair(kESDSDKPayloadImage, Prefix + Png64);
+        JSONPayload.AddPair(kESDSDKPayloadImage, Prefix + Image64);
     JSONObject.AddPair(kESDSDKCommonPayload, JSONPayload);
 
     FWebSocket.WriteText(JSONObject.ToString);

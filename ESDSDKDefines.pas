@@ -171,6 +171,7 @@ const
 type
 	ESDSDKTarget = (kESDSDKTarget_HardwareAndSoftware = 0, kESDSDKTarget_HardwareOnly = 1, kESDSDKTarget_SoftwareOnly = 2);
 	ESDSDKDeviceType = (kESDSDKDeviceType_StreamDeck = 0, kESDSDKDeviceType_StreamDeckMini = 1, kESDSDKDeviceType_StreamDeckXL = 2, kESDSDKDeviceType_StreamDeckMobile = 3);
+    ESDSDKMimeTypes = (kESDSDKMimeType_png = 0, kESDSDKMimeType_jpg = 1, kESDSDKMimeType_bmp = 2, kESDSDKMimeType_svg = 3);
 
 function GetBase64Image(FileName: String): String;
 
