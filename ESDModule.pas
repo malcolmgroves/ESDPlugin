@@ -54,6 +54,8 @@ end;
 
 destructor	TESDPlugin.Destroy;
 begin
+    FreeAndNil(FActionToContext);
+    FreeAndNil(FContextToAction);
 end;
 
 //*************************************************************//
