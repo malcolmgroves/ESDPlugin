@@ -173,14 +173,24 @@ procedure	TESDPlugin.PropertyInspectorDidAppear(const Action, Context: String; c
 var
     JSONObject: TJSONObject;
 begin
+    JSONObject := nil;
     JSONObject := TJSONObject.Create;
+    try
 
     // Based on Generic PI, or Button Specific PI on Action and/or Context -
     // Build up your JSON to send to Property Inspector to handle in its OnMessage callback (see javascript in HTML)
     // HTML file is identified in manifest.json
+    //
+    // JSON Owned property used b/c JSON objects created in the connection manager can take passed in JSON objects as
+    // payloads.  When those objects are free'd, we don't want to free our object there.  We free it here.
 
+    JSONObject.Owned := False;
     if JSONObject.Count > 0 then
         GConnectionManager.SendToPropertyInspector(Action, Context, JSONObject);
+    finally
+        JSONObject.Owned := True;
+        FreeAndNil(JSONObject);
+    end;
 end;
 
 //*************************************************************//

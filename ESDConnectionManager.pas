@@ -168,12 +168,17 @@ var
     JSON: String;
 begin
 	// The connection was established, register the plugin
+    JSONRegister := nil;
     JSONRegister := TJSONObject.Create;
-    JSONRegister.AddPair('event', kESDSDKRegisterPlugin);
-    JSONRegister.AddPair('uuid', FPluginUUID);
-    JSON := JSONRegister.ToString;
-    FWebSocket.WriteText(JSONRegister.ToString);
-    OutputDebugString(PWideChar(format('%s', [JSONRegister.ToString])));
+    try
+        JSONRegister.AddPair('event', kESDSDKRegisterPlugin);
+        JSONRegister.AddPair('uuid', FPluginUUID);
+        JSON := JSONRegister.ToString;
+        FWebSocket.WriteText(JSONRegister.ToString);
+        OutputDebugString(PWideChar(format('%s', [JSONRegister.ToString])));
+    finally
+        FreeAndNil(JSONRegister);
+    end;
 end;
 
 //*************************************************************//
@@ -328,17 +333,23 @@ procedure TESDConnectionManager.SetTitle(const Title, Context: String; Target: E
 var
     JSONObject, JSONPayload: TJSONObject;
 begin
+    JSONObject := nil;
+    JSONPayload := nil;
     JSONObject := TJSONObject.Create;
-    JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSetTitle);
-    JSONObject.AddPair(kESDSDKCommonContext, Context);
+    try
+        JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSetTitle);
+        JSONObject.AddPair(kESDSDKCommonContext, Context);
 
-    JSONPayload := TJSONObject.Create;
-    JSONPayload.AddPair(kESDSDKPayloadTarget, TJSONNumber.Create(Ord(Target)));
-    JSONPayload.AddPair(kESDSDKPayloadTitle, Title);
+        JSONPayload := TJSONObject.Create;
+        JSONPayload.AddPair(kESDSDKPayloadTarget, TJSONNumber.Create(Ord(Target)));
+        JSONPayload.AddPair(kESDSDKPayloadTitle, Title);
 
-    JSONObject.AddPair(kESDSDKCommonPayload, JSONPayload);
+        JSONObject.AddPair(kESDSDKCommonPayload, JSONPayload);
 
-    FWebSocket.WriteText(JSONObject.ToString);
+        FWebSocket.WriteText(JSONObject.ToString);
+    finally
+        FreeAndNil(JSONObject);
+    end;
 end;
 
 //*************************************************************//
@@ -356,19 +367,25 @@ begin
         Prefix := 'data:image/png;base64,';
     end;
 
+    JSONObject := nil;
+    JSONPayload := nil;
     JSONObject := TJSONObject.Create;
-    JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSetImage);
-    JSONObject.AddPair(kESDSDKCommonContext, Context);
+    try
+        JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSetImage);
+        JSONObject.AddPair(kESDSDKCommonContext, Context);
 
-    JSONPayload := TJSONObject.Create;
-    JSONPayload.AddPair(kESDSDKPayloadTarget, TJSONNumber.Create(Ord(Target)));
-    if (Length(Image64) = 0) or (Pos(Prefix, Image64) = 1) then
-	    JSONPayload.AddPair(kESDSDKPayloadImage, Image64)
-    else
-        JSONPayload.AddPair(kESDSDKPayloadImage, Prefix + Image64);
-    JSONObject.AddPair(kESDSDKCommonPayload, JSONPayload);
+        JSONPayload := TJSONObject.Create;
+        JSONPayload.AddPair(kESDSDKPayloadTarget, TJSONNumber.Create(Ord(Target)));
+        if (Length(Image64) = 0) or (Pos(Prefix, Image64) = 1) then
+            JSONPayload.AddPair(kESDSDKPayloadImage, Image64)
+        else
+            JSONPayload.AddPair(kESDSDKPayloadImage, Prefix + Image64);
+        JSONObject.AddPair(kESDSDKCommonPayload, JSONPayload);
 
-    FWebSocket.WriteText(JSONObject.ToString);
+        FWebSocket.WriteText(JSONObject.ToString);
+    finally
+        FreeAndNil(JSONObject);
+    end;
 end;
 
 //*************************************************************//
@@ -377,11 +394,16 @@ procedure TESDConnectionManager.ShowAlertForContext(const Context: String);
 var
     JSONObject: TJSONObject;
 begin
+    JSONObject := nil;
     JSONObject := TJSONObject.Create;
-    JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventShowAlert);
-    JSONObject.AddPair(kESDSDKCommonContext, Context);
+    try
+        JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventShowAlert);
+        JSONObject.AddPair(kESDSDKCommonContext, Context);
 
-    FWebSocket.WriteText(JSONObject.ToString);
+        FWebSocket.WriteText(JSONObject.ToString);
+    finally
+        FreeAndNil(JSONObject);
+    end;
 end;
 
 //*************************************************************//
@@ -390,11 +412,16 @@ procedure TESDConnectionManager.ShowOKForContext(const Context: String);
 var
     JSONObject: TJSONObject;
 begin
+    JSONObject := nil;
     JSONObject := TJSONObject.Create;
-    JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventShowOK);
-    JSONObject.AddPair(kESDSDKCommonContext, Context);
+    try
+        JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventShowOK);
+        JSONObject.AddPair(kESDSDKCommonContext, Context);
 
-    FWebSocket.WriteText(JSONObject.ToString);
+        FWebSocket.WriteText(JSONObject.ToString);
+    finally
+        FreeAndNil(JSONObject);
+    end;
 end;
 
 //*************************************************************//
@@ -403,12 +430,17 @@ procedure TESDConnectionManager.SetSettings(const JSONSettings: TJSONObject; con
 var
     JSONObject: TJSONObject;
 begin
+    JSONObject := nil;
     JSONObject := TJSONObject.Create;
-    JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSetSettings);
-    JSONObject.AddPair(kESDSDKCommonContext, Context);
-    JSONObject.AddPair(kESDSDKCommonPayload, JSONSettings);
+    try
+        JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSetSettings);
+        JSONObject.AddPair(kESDSDKCommonContext, Context);
+        JSONObject.AddPair(kESDSDKCommonPayload, JSONSettings);
 
-    FWebSocket.WriteText(JSONObject.ToString);
+        FWebSocket.WriteText(JSONObject.ToString);
+    finally
+        FreeAndNil(JSONObject);
+    end;
 end;
 
 //*************************************************************//
@@ -417,15 +449,21 @@ procedure TESDConnectionManager.SetState(State: Integer; const Context: String);
 var
     JSONObject, JSONPayload: TJSONObject;
 begin
+    JSONObject := nil;
+    JSONPayload := nil;
     JSONObject := TJSONObject.Create;
-    JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSetState);
-    JSONObject.AddPair(kESDSDKCommonContext, Context);
+    try
+        JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSetState);
+        JSONObject.AddPair(kESDSDKCommonContext, Context);
 
-    JSONPayload := TJSONObject.Create;
-    JSONPayload.AddPair(kESDSDKPayloadState, TJSONNumber.Create(State));
-    JSONObject.AddPair(kESDSDKCommonPayload, JSONPayload);
+        JSONPayload := TJSONObject.Create;
+        JSONPayload.AddPair(kESDSDKPayloadState, TJSONNumber.Create(State));
+        JSONObject.AddPair(kESDSDKCommonPayload, JSONPayload);
 
-    FWebSocket.WriteText(JSONObject.ToString);
+        FWebSocket.WriteText(JSONObject.ToString);
+    finally
+        FreeAndNil(JSONObject);
+    end;
 end;
 
 //*************************************************************//
@@ -434,13 +472,18 @@ procedure TESDConnectionManager.SendToPropertyInspector(const Action, Context: S
 var
     JSONObject: TJSONObject;
 begin
+    JSONObject := nil;
     JSONObject := TJSONObject.Create;
-    JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSendToPropertyInspector);
-    JSONObject.AddPair(kESDSDKCommonContext, Context);
-    JSONObject.AddPair(kESDSDKCommonAction, Action);
-    JSONObject.AddPair(kESDSDKCommonPayload, Payload);
+    try
+        JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSendToPropertyInspector);
+        JSONObject.AddPair(kESDSDKCommonContext, Context);
+        JSONObject.AddPair(kESDSDKCommonAction, Action);
+        JSONObject.AddPair(kESDSDKCommonPayload, Payload);
 
-    FWebSocket.WriteText(JSONObject.ToString);
+        FWebSocket.WriteText(JSONObject.ToString);
+    finally
+        FreeAndNil(JSONObject);
+    end;
 end;
 
 //*************************************************************//
@@ -451,19 +494,25 @@ var
 begin
     if Length(DeviceID) > 0 then
     	begin
+        JSONObject := nil;
+        JSONPayload := nil;
         JSONObject := TJSONObject.Create;
-        JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSwitchToProfile);
-        JSONObject.AddPair(kESDSDKCommonContext, FPluginUUID);
-        JSONObject.AddPair(kESDSDKCommonDevice, DeviceID);
+            try
+            JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSwitchToProfile);
+            JSONObject.AddPair(kESDSDKCommonContext, FPluginUUID);
+            JSONObject.AddPair(kESDSDKCommonDevice, DeviceID);
 
-        if Length(ProfileName) > 0 then
-        	begin
-            JSONPayload := TJSONObject.Create;
-            JSONPayload.AddPair(kESDSDKPayloadProfile, ProfileName);
-            JSONObject.AddPair(kESDSDKCommonPayload, JSONPayload);
+            if Length(ProfileName) > 0 then
+                begin
+                JSONPayload := TJSONObject.Create;
+                JSONPayload.AddPair(kESDSDKPayloadProfile, ProfileName);
+                JSONObject.AddPair(kESDSDKCommonPayload, JSONPayload);
+                end;
+
+            FWebSocket.WriteText(JSONObject.ToString);
+            finally
+                FreeAndNil(JSONObject);
             end;
-
-	    FWebSocket.WriteText(JSONObject.ToString);
         end;
 end;
 
@@ -475,14 +524,20 @@ var
 begin
     if Length(Message) > 0 then
         begin
+        JSONObject := nil;
+        JSONPayload := nil;
         JSONObject := TJSONObject.Create;
-        JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventLogMessage);
+        try
+            JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventLogMessage);
 
-        JSONPayload := TJSONObject.Create;
-        JSONPayload.AddPair(kESDSDKPayloadMessage, Message);
-        JSONObject.AddPair(kESDSDKCommonPayload, JSONPayload);
+            JSONPayload := TJSONObject.Create;
+            JSONPayload.AddPair(kESDSDKPayloadMessage, Message);
+            JSONObject.AddPair(kESDSDKCommonPayload, JSONPayload);
 
-	    FWebSocket.WriteText(JSONObject.ToString);
+            FWebSocket.WriteText(JSONObject.ToString);
+        finally
+            FreeAndNil(JSONObject);
+        end;
         end;
 end;
 
@@ -492,12 +547,17 @@ procedure TESDConnectionManager.SetGlobalSettings(const Settings: TJSONObject);
 var
     JSONObject: TJSONObject;
 begin
+    JSONObject := nil;
     JSONObject := TJSONObject.Create;
-    JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSetGlobalSettings);
-    JSONObject.AddPair(kESDSDKCommonContext, FPluginUUID);
-    JSONObject.AddPair(kESDSDKCommonPayload, Settings);
+    try
+        JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventSetGlobalSettings);
+        JSONObject.AddPair(kESDSDKCommonContext, FPluginUUID);
+        JSONObject.AddPair(kESDSDKCommonPayload, Settings);
 
-    FWebSocket.WriteText(JSONObject.ToString);
+        FWebSocket.WriteText(JSONObject.ToString);
+    finally
+        FreeAndNil(JSONObject);
+    end;
 end;
 
 //*************************************************************//
@@ -506,11 +566,16 @@ procedure TESDConnectionManager.RequestSettings(const Context: String);
 var
     JSONObject: TJSONObject;
 begin
+    JSONObject := nil;
     JSONObject := TJSONObject.Create;
-    JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventGetSettings);
-    JSONObject.AddPair(kESDSDKCommonContext, Context);
+    try
+        JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventGetSettings);
+        JSONObject.AddPair(kESDSDKCommonContext, Context);
 
-    FWebSocket.WriteText(JSONObject.ToString);
+        FWebSocket.WriteText(JSONObject.ToString);
+    finally
+        FreeAndNil(JSONObject);
+    end;
 end;
 
 //*************************************************************//
@@ -519,11 +584,16 @@ procedure TESDConnectionManager.RequestGlobalSettings();
 var
     JSONObject: TJSONObject;
 begin
+    JSONObject := nil;
     JSONObject := TJSONObject.Create;
-    JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventGetGlobalSettings);
-    JSONObject.AddPair(kESDSDKCommonContext, FPluginUUID);
+    try
+        JSONObject.AddPair(kESDSDKCommonEvent, kESDSDKEventGetGlobalSettings);
+        JSONObject.AddPair(kESDSDKCommonContext, FPluginUUID);
 
-    FWebSocket.WriteText(JSONObject.ToString);
+        FWebSocket.WriteText(JSONObject.ToString);
+    finally
+        FreeAndNil(JSONObject);
+    end;
 end;
 
 //*************************************************************//
