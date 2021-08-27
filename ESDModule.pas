@@ -63,16 +63,16 @@ end;
 
 procedure	TESDPlugin.DidReceiveSettings(const Action, Context: String; const JSONPayload: TJSONObject; const DeviceID: String);
 var
-    JSONPair : TJSONPair;
-    JSONSettings: TJSONObject;
+    JSONPair:		TJSONPair;
+    JSONSettings:	TJSONObject;
+    Command, Value: String;
 begin
     if JSONPayload.FindValue('settings') <> nil then
         begin
         JSONPair := JSONPayload.Get('settings');
         JSONSettings := JSONPair.JsonValue as TJSONObject;
-
-        // Pull out your payload data with GetJSONStr
-        // ex: Value := GetJSONStr(JSONSettings, 'Key');  for something like {"Key":"Value"}
+        Command := GetJSONStr(JSONSettings, 'command');
+        Value := GetJSONStr(JSONSettings, 'value');
         end;
 end;
 
@@ -107,6 +107,8 @@ procedure	TESDPlugin.WillAppearForAction(const Action, Context: String; const JS
 begin
     FActionToContext.Add(Action, Context);
     FContextToAction.Add(Context, Action);
+
+    GConnectionManager.RequestSettings(Context);
 end;
 
 //*************************************************************//
@@ -206,19 +208,29 @@ end;
 
 procedure	TESDPlugin.SendToPlugin(const Action, Context: String; const JSONPayload: TJSONObject; const DeviceID: String);
 var
-    Value: String;
+	JSONSettings:	TJSONObject;
+    Command, Value:	String;
 begin
     // Property Inspector sent us something based on one of our HTML custom events (see HTML)
-    if JSONPayload.FindValue('MyInput') <> nil then
+    if JSONPayload.FindValue('...') <> nil then
 	    begin
-            Value := GetJSONStr(JSONPayload, 'MyInput');
-            GConnectionManager.SetTitle(Value, Context, kESDSDKTarget_HardwareAndSoftware);
-        end;
+            // Command is our key
+            Command := 'some command';
+            Value := GetJSONStr(JSONPayload, '...');
 
-    if JSONPayload.FindValue('MySelect') <> nil then
-	    begin
-            Value := GetJSONStr(JSONPayload, 'MySelect');
-            GConnectionManager.SetTitle(Value, Context, kESDSDKTarget_HardwareAndSoftware);
+            // Command / Value key pair needs to be saved so it can be restored on next run when we get our settings
+            JSONSettings := nil;
+            JSONSettings := TJSONObject.Create;
+            try
+                JSONSettings.AddPair('command', Command);
+                JSONSettings.AddPair('value', Value);
+                JSONSettings.AddPair('context', Context);
+                JSONSettings.Owned := False;
+                GConnectionManager.SetSettings(JSONSettings, Context);
+            finally
+                JSONSettings.Owned := True;
+                FreeAndNil(JSONSettings);
+            end;
         end;
 end;
 
