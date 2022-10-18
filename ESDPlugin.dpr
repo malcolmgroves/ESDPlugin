@@ -32,6 +32,9 @@ uses
   IdWebSocketSimpleClient,
   ESDSDKDefines,
   ESDConnectionManager,
+  {$IFDEF DEBUG}
+  VCL.Dialogs,
+  {$ENDIF}
   ESDModule in 'ESDModule.pas';
 
 //*************************************************************//
@@ -55,6 +58,9 @@ var
 
 begin
 	try
+        {$IFDEF DEBUG}
+        ShowMessage('Attach to debugger to debug ESDPlugin');
+        {$ENDIF}
         CommandLine := GetCommandLine;
         Argv := CommandLineToArgvW(PChar(CommandLine), ArgCount);
         if Not Assigned(Argv) or (ArgCount <> 9) then
@@ -102,9 +108,9 @@ begin
             exit;
             end;
 
-            Plugin := TESDPlugin.Create;
-            ConnectionManager := TESDConnectionManager.Create(Port, PluginUUID, RegisterEvent, Info, Plugin);
-            ConnectionManager.Run;
+        Plugin := TESDPlugin.Create;
+        ConnectionManager := TESDConnectionManager.Create(Port, PluginUUID, RegisterEvent, Info, Plugin);
+        ConnectionManager.Run;
 	except
 		on E: Exception do
 			OutputDebugString(PWideChar(format('%s : %s', [E.ClassName, E.Message])));

@@ -22,51 +22,51 @@ unit ESDConnectionManager;
 interface
 
 uses
-	WinApi.Windows,
-    System.SysUtils, System.Classes, System.StrUtils, System.JSON,
-    IdSSLOpenSSL, IdWebSocketSimpleClient,
-    ESDModule, ESDSDKDefines;
+  WinApi.Windows,
+  System.SysUtils, System.Classes, System.StrUtils, System.JSON,
+  IdSSLOpenSSL, IdWebSocketSimpleClient,
+  ESDModule, ESDSDKDefines;
 
 type
-    TESDConnectionManager = class(TComponent)
+  TESDConnectionManager = class(TComponent)
 
-    private
-        FPort: Integer;
-        FPluginUUID: String;
-        FRegisterEvent: String;
-        FInfo: String;
-        FWebSocket: TIdSimpleWebSocketClient;
-        FESDPlugin: TESDPlugin;
+  private
+    FPort: Integer;
+    FPluginUUID: String;
+    FRegisterEvent: String;
+    FInfo: String;
+    FWebSocket: TIdSimpleWebSocketClient;
+    FESDPlugin: TESDPlugin;
 
-        // WebSocket callbacks
-        procedure	OnConnectionEvent(Sender: TObject; const Text: String);
-        procedure   OnAfterConnectionEvent(Sender: TObject; const Text: String);
-        procedure	OnDataEvent(Sender: TObject; const Text: String);
-        procedure	OnPingEvent(Sender: TObject; const Text: String);
-        procedure   OnErrorEvent(Sender: TObject; Exception: Exception; const Text: String; var ForceDisconnect);
-        procedure   OnUpgradeEvent(Sender: TObject);
-        procedure   OnDisconnectedEvent(Sender: TObject);
+    // WebSocket callbacks
+    procedure	OnConnectionEvent(Sender: TObject; const Text: String);
+    procedure   OnAfterConnectionEvent(Sender: TObject; const Text: String);
+    procedure	OnDataEvent(Sender: TObject; const Text: String);
+    procedure	OnPingEvent(Sender: TObject; const Text: String);
+    procedure   OnErrorEvent(Sender: TObject; Exception: Exception; const Text: String; var ForceDisconnect);
+    procedure   OnUpgradeEvent(Sender: TObject);
+    procedure   OnDisconnectedEvent(Sender: TObject);
 
-    public
-        constructor	Create(Port: Integer; PluginUUID, RegisterEvent, Info: String; ESDPlugin: TESDPlugin); reintroduce;
-        procedure   AfterConstruction; override;
-        destructor	Destroy; override;
-        procedure	Run;
+  public
+    constructor	Create(Port: Integer; PluginUUID, RegisterEvent, Info: String; ESDPlugin: TESDPlugin); reintroduce;
+    procedure   AfterConstruction; override;
+    destructor	Destroy; override;
+    procedure	Run;
 
-        // API to communicate with the Stream Deck Application
-        procedure	SetTitle(const Title, Context: String; Target: ESDSDKTarget);
-		procedure	SetImage(const Image64, Context: String; Target: ESDSDKTarget; const MimeType: ESDSDKMimeTypes = kESDSDKMimeType_png);
-        procedure	ShowAlertForContext(const Context: String);
-        procedure	ShowOKForContext(const Context: String);
-        procedure	SetSettings(const JSONSettings: TJSONObject; const Context: String);
-        procedure	SetState(State: Integer; const Context: String);
-        procedure	SendToPropertyInspector(const Action, Context: String; const Payload: TJSONObject);
-        procedure	SwitchToProfile(const DeviceID, ProfileName: String);
-        procedure	LogMessage(const Message: String);
-        procedure	SetGlobalSettings(const Settings: TJSONObject);
-        procedure	RequestSettings(const Context: String);
-        procedure	RequestGlobalSettings();
-    end;
+    // API to communicate with the Stream Deck Application
+    procedure	SetTitle(const Title, Context: String; Target: ESDSDKTarget);
+    procedure	SetImage(const Image64, Context: String; Target: ESDSDKTarget; const MimeType: ESDSDKMimeTypes = kESDSDKMimeType_png);
+    procedure	ShowAlertForContext(const Context: String);
+    procedure	ShowOKForContext(const Context: String);
+    procedure	SetSettings(const JSONSettings: TJSONObject; const Context: String);
+    procedure	SetState(State: Integer; const Context: String);
+    procedure	SendToPropertyInspector(const Action, Context: String; const Payload: TJSONObject);
+    procedure	SwitchToProfile(const DeviceID, ProfileName: String);
+    procedure	LogMessage(const Message: String);
+    procedure	SetGlobalSettings(const Settings: TJSONObject);
+    procedure	RequestSettings(const Context: String);
+    procedure	RequestGlobalSettings();
+  end;
 
 //*************************************************************//
 
@@ -75,7 +75,7 @@ function GetJSONStr(const JSONObj: TJSONObject; const JSONFieldName: String): Va
 //*************************************************************//
 
 var
-    GConnectionManager: TESDConnectionManager;
+  GConnectionManager: TESDConnectionManager;
 
 implementation
 
@@ -83,18 +83,17 @@ implementation
 
 function GetJSONStr(const JSONObj: TJSONObject; const JSONFieldName: String): Variant;
 begin
-	if (JSONObj.Get(JSONFieldName) <> Nil)
-	and (JSONObj.Get(JSONFieldName).JsonValue is TJSONString) then
-		Result := TJSONString(JSONObj.Get(JSONFieldName).JsonValue).Value
-	else
-		Result := '';
+  if (JSONObj.Get(JSONFieldName) <> Nil) and (JSONObj.Get(JSONFieldName).JsonValue is TJSONString) then
+    Result := TJSONString(JSONObj.Get(JSONFieldName).JsonValue).Value
+  else
+    Result := '';
 end;
 
 //*************************************************************//
 
 constructor TESDConnectionManager.Create(Port: Integer; PluginUUID, RegisterEvent, Info: String; ESDPlugin: TESDPlugin);
 begin
-	inherited Create(nil);
+  inherited Create(nil);
 
     FPort := Port;
     FPluginUUID := PluginUUID;
@@ -107,8 +106,8 @@ end;
 
 procedure TESDConnectionManager.AfterConstruction;
 begin
-    inherited;
-    GConnectionManager := Self;
+  inherited;
+  GConnectionManager := Self;
 end;
 
 //*************************************************************//
@@ -122,30 +121,30 @@ end;
 
 procedure TESDConnectionManager.Run;
 begin
-    try
-		FWebSocket := TIdSimpleWebSocketClient.Create(Self);
-        FWebSocket.OnConnectionDataEvent := OnConnectionEvent;
-        FWebSocket.OnAfterConnectionDataEvent := OnAfterConnectionEvent;
-        FWebSocket.OnUpgrade := OnUpgradeEvent;
-        FWebSocket.OnDataEvent := OnDataEvent;
-        FWebSocket.OnPing := OnPingEvent;
-        FWebSocket.OnError := OnErrorEvent;
-        FWebSocket.OnDisconnected := OnDisconnectedEvent;
-        FWebSocket.AutoCreateHandler := False; // This can be set as True in the majority of Websockets with ssl
+  try
+    FWebSocket := TIdSimpleWebSocketClient.Create(Self);
+    FWebSocket.OnConnectionDataEvent := OnConnectionEvent;
+    FWebSocket.OnAfterConnectionDataEvent := OnAfterConnectionEvent;
+    FWebSocket.OnUpgrade := OnUpgradeEvent;
+    FWebSocket.OnDataEvent := OnDataEvent;
+    FWebSocket.OnPing := OnPingEvent;
+    FWebSocket.OnError := OnErrorEvent;
+    FWebSocket.OnDisconnected := OnDisconnectedEvent;
+    FWebSocket.AutoCreateHandler := False; // This can be set as True in the majority of Websockets with ssl
 
-        if not FWebSocket.AutoCreateHandler then
-        	begin
-            if FWebSocket.IOHandler = nil then
-		        FWebSocket.IOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(FWebSocket);
-            (FWebSocket.IOHandler as TIdSSLIOHandlerSocketOpenSSL).SSLOptions.Mode := TIdSSLMode.sslmClient;
-            (FWebSocket.IOHandler as TIdSSLIOHandlerSocketOpenSSL).SSLOptions.SSLVersions := [TIdSSLVersion.sslvTLSv1, TIdSSLVersion.sslvTLSv1_1, TIdSSLVersion.sslvTLSv1_2];
-         	end;
+    if not FWebSocket.AutoCreateHandler then
+    begin
+      if FWebSocket.IOHandler = nil then
+      FWebSocket.IOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(FWebSocket);
+      (FWebSocket.IOHandler as TIdSSLIOHandlerSocketOpenSSL).SSLOptions.Mode := TIdSSLMode.sslmClient;
+      (FWebSocket.IOHandler as TIdSSLIOHandlerSocketOpenSSL).SSLOptions.SSLVersions := [TIdSSLVersion.sslvTLSv1, TIdSSLVersion.sslvTLSv1_1, TIdSSLVersion.sslvTLSv1_2];
+    end;
 
-        FWebSocket.Connect('ws://127.0.0.1:' + IntToStr(FPort));
+    FWebSocket.Connect('ws://127.0.0.1:' + IntToStr(FPort));
 
     except
-        on E: Exception do
-            OutputDebugString(PWideChar(format('%s : %s', [E.ClassName, E.Message])));
+      on E: Exception do
+        OutputDebugString(PWideChar(format('%s : %s', [E.ClassName, E.Message])));
     end;
 end;
 
@@ -157,138 +156,138 @@ end;
 
 procedure TESDConnectionManager.OnConnectionEvent(Sender: TObject; const Text: String);
 begin
-    OutputDebugString(PWideChar(format('%s', [Text])));
+  OutputDebugString(PWideChar(format('%s', [Text])));
 end;
 
 //*************************************************************//
 
 procedure TESDConnectionManager.OnAfterConnectionEvent(Sender: TObject; const Text: String);
 var
-	JSONRegister: TJSONObject;
-    JSON: String;
+  JSONRegister: TJSONObject;
+  JSON: String;
 begin
-	// The connection was established, register the plugin
-    JSONRegister := nil;
-    JSONRegister := TJSONObject.Create;
-    try
-        JSONRegister.AddPair('event', kESDSDKRegisterPlugin);
-        JSONRegister.AddPair('uuid', FPluginUUID);
-        JSON := JSONRegister.ToString;
-        FWebSocket.WriteText(JSONRegister.ToString);
-        OutputDebugString(PWideChar(format('%s', [JSONRegister.ToString])));
-    finally
-        FreeAndNil(JSONRegister);
-    end;
+  // The connection was established, register the plugin
+  JSONRegister := nil;
+  JSONRegister := TJSONObject.Create;
+  try
+    JSONRegister.AddPair('event', kESDSDKRegisterPlugin);
+    JSONRegister.AddPair('uuid', FPluginUUID);
+    JSON := JSONRegister.ToString;
+    FWebSocket.WriteText(JSONRegister.ToString);
+    OutputDebugString(PWideChar(format('%s', [JSONRegister.ToString])));
+  finally
+    FreeAndNil(JSONRegister);
+  end;
 end;
 
 //*************************************************************//
 
 procedure TESDConnectionManager.OnDataEvent(Sender: TObject; const Text: String);
 var
-	JSONData, JSONPayload, JSONDevice: TJSONObject;
-    JSONPayloadPair, JSONDevicePair: TJSONPair;
-    Event, Context, Action, DeviceID : String;
+  JSONData, JSONPayload, JSONDevice: TJSONObject;
+  JSONPayloadPair, JSONDevicePair: TJSONPair;
+  Event, Context, Action, DeviceID : String;
 begin
-	// Block once here for in code visual updates to the buttons
-    TMonitor.Enter(Self);
+  // Block once here for in code visual updates to the buttons
+  TMonitor.Enter(Self);
 
-    // https://developer.elgato.com/documentation/stream-deck/sdk/events-received/
+  // https://developer.elgato.com/documentation/stream-deck/sdk/events-received/
 	try
-        JSONData := TJSONObject.ParseJSONValue(Text) as TJSONObject;
+    JSONData := TJSONObject.ParseJSONValue(Text) as TJSONObject;
 
-        Event := GetJSONStr(JSONData, kESDSDKCommonEvent);
-        Context := GetJSONStr(JSONData, kESDSDKCommonContext);
-        Action := GetJSONStr(JSONData, kESDSDKCommonAction);
-        DeviceID := GetJSONStr(JSONData, kESDSDKCommonDevice);
+    Event := GetJSONStr(JSONData, kESDSDKCommonEvent);
+    Context := GetJSONStr(JSONData, kESDSDKCommonContext);
+    Action := GetJSONStr(JSONData, kESDSDKCommonAction);
+    DeviceID := GetJSONStr(JSONData, kESDSDKCommonDevice);
 
-        JSONPayloadPair := JSONData.Get(kESDSDKCommonPayload);
-        JSONPayload := nil;
-        if Assigned(JSONPayloadPair) then
-	        JSONPayload := JSONPayloadPair.JsonValue as TJSONObject;
+    JSONPayloadPair := JSONData.Get(kESDSDKCommonPayload);
+    JSONPayload := nil;
+    if Assigned(JSONPayloadPair) then
+      JSONPayload := JSONPayloadPair.JsonValue as TJSONObject;
 
-        if Event = kESDSDKEventDidReceiveSettings then
-        	begin
-            if Assigned(JSONPayload) then
-    	        begin
-                FESDPlugin.DidReceiveSettings(Action, Context, JSONPayload, DeviceID);
-                OutputDebugString(PWideChar(format('Event %s', [Event])));
-        	    end;
-        	end
-        else if Event = kESDSDKEventDidReceiveGlobalSettings then
-	        begin
-            FESDPlugin.DidReceiveGlobalSettings(JSONPayload);
-		    OutputDebugString(PWideChar(format('Event %s', [Event])));
-	        end
-        else if Event = kESDSDKEventKeyDown then
-        	begin
-            FESDPlugin.KeyDownForAction(Action, Context, JSONPayload, DeviceID);
-		    OutputDebugString(PWideChar(format('Event %s', [Event])));
-            end
-        else if Event = kESDSDKEventKeyUp then
-        	begin
-            FESDPlugin.KeyUpForAction(Action, Context, JSONPayload, DeviceID);
-		    OutputDebugString(PWideChar(format('Event %s', [Event])));
-            end
-        else if Event = kESDSDKEventWillAppear then
-        	begin
-            FESDPlugin.WillAppearForAction(Action, Context, JSONPayload, DeviceID);
-		    OutputDebugString(PWideChar(format('Event %s', [Event])));
-            end
-        else if Event = kESDSDKEventWillDisappear then
-        	begin
-            FESDPlugin.WillDisappearForAction(Action, Context, JSONPayload, DeviceID);
-		    OutputDebugString(PWideChar(format('Event %s', [Event])));
-            end
-        else if Event = kESDSDKEventTitleParametersDidChange then
-        	begin
-			FESDPlugin.TitleParametersDidChange(Action, Context, JSONPayload, DeviceID);
-		    OutputDebugString(PWideChar(format('Event %s', [Event])));
-            end
-        else if Event = kESDSDKEventDeviceDidConnect then
-        	begin
-            JSONDevicePair := JSONData.Get(kESDSDKCommonDeviceInfo);
-            if Assigned(JSONDevicePair) then
-            	begin
-                JSONDevice := JSONDevicePair.JsonValue as TJSONObject;
-                FESDPlugin.DeviceDidConnect(DeviceID, JSONDevice);
-                OutputDebugString(PWideChar(format('Event %s', [Event])));
-                end;
-            end
-        else if Event = kESDSDKEventDeviceDidDisconnect then
-        	begin
-            FESDPlugin.DeviceDidDisconnect(DeviceID);
-		    OutputDebugString(PWideChar(format('Event %s', [Event])));
-            end
-        else if Event = kESDSDKEventApplicationDidLaunch then
-        	begin
-            FESDPlugin.ApplicationDidLaunch(Action, Context, JSONPayload, DeviceID);
-		    OutputDebugString(PWideChar(format('Event %s', [Event])));
-            end
-        else if Event = kESDSDKEventApplicationDidTerminate then
-        	begin
-            FESDPlugin.ApplicationDidTerminate(Action, Context, JSONPayload, DeviceID);
-		    OutputDebugString(PWideChar(format('Event %s', [Event])));
-            end
-        else if Event = kESDSDKEventSystemDidWakeUp then
-        	begin
-            FESDPlugin.SystemDidWakeUp;
-		    OutputDebugString(PWideChar(format('Event %s', [Event])));
-            end
-        else if Event = kESDSDKEventPropertyInspectorDidAppear then
-        	begin
-            FESDPlugin.PropertyInspectorDidAppear(Action, Context, JSONPayload, DeviceID);
-		    OutputDebugString(PWideChar(format('Event %s', [Event])));
-            end
-        else if Event = kESDSDKEventPropertyInspectorDidDisappear then
-        	begin
-            FESDPlugin.PropertyInspectorDidDisappear(Action, Context, DeviceID);
-		    OutputDebugString(PWideChar(format('Event %s', [Event])));
-            end
-        else if Event = kESDSDKEventSendToPlugin then
-        	begin
-            FESDPlugin.SendToPlugin(Action, Context, JSONPayload, DeviceID);
-		    OutputDebugString(PWideChar(format('Event %s', [Event])));
-            end;
+    if Event = kESDSDKEventDidReceiveSettings then
+      begin
+        if Assigned(JSONPayload) then
+          begin
+            FESDPlugin.DidReceiveSettings(Action, Context, JSONPayload, DeviceID);
+            OutputDebugString(PWideChar(format('Event %s', [Event])));
+          end;
+      end
+    else if Event = kESDSDKEventDidReceiveGlobalSettings then
+      begin
+        FESDPlugin.DidReceiveGlobalSettings(JSONPayload);
+        OutputDebugString(PWideChar(format('Event %s', [Event])));
+      end
+    else if Event = kESDSDKEventKeyDown then
+      begin
+        FESDPlugin.KeyDownForAction(Action, Context, JSONPayload, DeviceID);
+        OutputDebugString(PWideChar(format('Event %s', [Event])));
+      end
+    else if Event = kESDSDKEventKeyUp then
+      begin
+        FESDPlugin.KeyUpForAction(Action, Context, JSONPayload, DeviceID);
+        OutputDebugString(PWideChar(format('Event %s', [Event])));
+      end
+    else if Event = kESDSDKEventWillAppear then
+      begin
+        FESDPlugin.WillAppearForAction(Action, Context, JSONPayload, DeviceID);
+        OutputDebugString(PWideChar(format('Event %s', [Event])));
+      end
+    else if Event = kESDSDKEventWillDisappear then
+      begin
+        FESDPlugin.WillDisappearForAction(Action, Context, JSONPayload, DeviceID);
+        OutputDebugString(PWideChar(format('Event %s', [Event])));
+      end
+    else if Event = kESDSDKEventTitleParametersDidChange then
+      begin
+        FESDPlugin.TitleParametersDidChange(Action, Context, JSONPayload, DeviceID);
+        OutputDebugString(PWideChar(format('Event %s', [Event])));
+      end
+    else if Event = kESDSDKEventDeviceDidConnect then
+      begin
+        JSONDevicePair := JSONData.Get(kESDSDKCommonDeviceInfo);
+        if Assigned(JSONDevicePair) then
+          begin
+            JSONDevice := JSONDevicePair.JsonValue as TJSONObject;
+            FESDPlugin.DeviceDidConnect(DeviceID, JSONDevice);
+            OutputDebugString(PWideChar(format('Event %s', [Event])));
+          end;
+      end
+    else if Event = kESDSDKEventDeviceDidDisconnect then
+      begin
+        FESDPlugin.DeviceDidDisconnect(DeviceID);
+        OutputDebugString(PWideChar(format('Event %s', [Event])));
+      end
+    else if Event = kESDSDKEventApplicationDidLaunch then
+      begin
+        FESDPlugin.ApplicationDidLaunch(Action, Context, JSONPayload, DeviceID);
+        OutputDebugString(PWideChar(format('Event %s', [Event])));
+      end
+    else if Event = kESDSDKEventApplicationDidTerminate then
+      begin
+        FESDPlugin.ApplicationDidTerminate(Action, Context, JSONPayload, DeviceID);
+        OutputDebugString(PWideChar(format('Event %s', [Event])));
+      end
+    else if Event = kESDSDKEventSystemDidWakeUp then
+      begin
+        FESDPlugin.SystemDidWakeUp;
+        OutputDebugString(PWideChar(format('Event %s', [Event])));
+      end
+    else if Event = kESDSDKEventPropertyInspectorDidAppear then
+      begin
+        FESDPlugin.PropertyInspectorDidAppear(Action, Context, JSONPayload, DeviceID);
+        OutputDebugString(PWideChar(format('Event %s', [Event])));
+      end
+    else if Event = kESDSDKEventPropertyInspectorDidDisappear then
+      begin
+        FESDPlugin.PropertyInspectorDidDisappear(Action, Context, DeviceID);
+        OutputDebugString(PWideChar(format('Event %s', [Event])));
+      end
+    else if Event = kESDSDKEventSendToPlugin then
+      begin
+        FESDPlugin.SendToPlugin(Action, Context, JSONPayload, DeviceID);
+        OutputDebugString(PWideChar(format('Event %s', [Event])));
+      end;
     finally
     	TMonitor.Exit(Self);
 	end;

@@ -6,27 +6,18 @@
 	<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,minimal-ui,viewport-fit=cover">
 	<meta name=apple-mobile-web-app-capable content=yes>
 	<meta name=apple-mobile-web-app-status-bar-style content=black>
-    <title>EasyWorship</title>
+    <title>My Plugin</title>
     <link rel="stylesheet" href="css/sdpi.css">
 </head>
 
 <body>
 	<div class="sdpi-wrapper">
 		<div class="sdpi-item">
-			<div class="sdpi-item-label">Name</div> 
-			<input class="sdpi-item-value" type="text" id="MyInput" value="" onchange="sendValueToPlugin(event.target.value, 'MyInput')">
-		</div>
-		<div class="sdpi-item">
-			<div class="sdpi-item-label">Servers</div> 
-			<select class="sdpi-item-value select" id="MySelect" onchange="sendValueToPlugin(event.target.value, 'MySelect')">
-                <option value="Pascal">Pascal</option>
-                <option value="C++">C++</option>
-                <option value="C#">C#</option>
-                <option value="JavaScript">JavaScript</option>
-            </select>
+			<div class="sdpi-item-label">Languages</div> 
+			<!-- With JavaScript, the select entries will be created and the last one selected will be set as the selected option -->
+			<select class="sdpi-item-value select" id="MySelect" onchange="sendValueToPlugin(event.target.value, 'MySelect')"></select>
 		</div>
 	</div>
-	
     <script>
         // this is our global websocket, used to communicate from/to Stream Deck software
         // and some info about our plugin, as sent by Stream Deck software
@@ -42,10 +33,25 @@
 
             // JSON entries in evt.data:
             // "action", "context", "event", "payload" <- "payload" contains the JSON we staged from the plugin when we called SendToPropertyInspector.
-			websocket.onmessage = function (evt) {
-				var jsonPayload = JSON.parse(evt.data)["payload"];
+			websocket.onmessage = function (evt)
+			{
+				var Event = JSON.parse(evt.data)["event"];
+				if (Event == "sendToPropertyInspector")
+				{
+					var Action = JSON.parse(evt.data)["action"];
+					if (Action == "com.org.software.mybutton")
+					{
+						var Context = JSON.parse(evt.data)["context"];
+						
+						// Locate the object in the DOM and update the options
+						var MySelect = document.getElementById("MySelect");
 
-                // Pull out values from your JSON and update your HTML
+						// Pull out the option group from your JSON and update your HTML
+						var Payload = JSON.parse(evt.data)["payload"];
+						var OptionGroup = Payload[Context];
+						MySelect.innerHTML = OptionGroup;
+					}
+				}
 			};
 
 			// if connection was established, the websocket sends
