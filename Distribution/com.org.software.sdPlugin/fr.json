@@ -1,8 +1,0 @@
-{
-  "Description": "Simple Plugin", 
-  "Name": "Simple Plugin", 
-  "com.software.org.sdPlugin": {
-    "Name": "Simple Plugin", 
-    "Tooltip": "Simple Plugin Controls"
-  }
-}
