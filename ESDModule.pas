@@ -30,7 +30,6 @@ uses
 type
   TESDPlugin = class
   private
-    FActionToContext: TDictionary<String, String>;
     FContextToAction: TDictionary<String, String>;
     FContextToValue:  TDictionary<String, String>;
 
@@ -67,7 +66,6 @@ uses
 
 constructor	TESDPlugin.Create;
 begin
-  FActionToContext := TDictionary<String, String>.Create;
   FContextToAction := TDictionary<String, String>.Create;
   FContextToValue  := TDictionary<String, String>.Create;
 
@@ -89,7 +87,6 @@ end;
 
 destructor	TESDPlugin.Destroy;
 begin
-  FreeAndNil(FActionToContext);
   FreeAndNil(FContextToAction);
 end;
 
@@ -98,8 +95,8 @@ end;
 
 procedure	TESDPlugin.DidReceiveSettings(const Action, Context: String; const JSONPayload: TJSONObject; const DeviceID: String);
 var
-  JSONPair:		TJSONPair;
-  JSONSettings:	TJSONObject;
+  JSONPair:		    TJSONPair;
+  JSONSettings:	  TJSONObject;
   Command, Value: String;
 begin
   if JSONPayload.FindValue('settings') <> nil then
@@ -141,7 +138,6 @@ end;
 
 procedure	TESDPlugin.WillAppearForAction(const Action, Context: String; const JSONPayload: TJSONObject; const DeviceID: String);
 begin
-  FActionToContext.Add(Action, Context);
   FContextToAction.Add(Context, Action);
   GConnectionManager.RequestSettings(Context);
 end;
@@ -151,7 +147,6 @@ end;
 
 procedure	TESDPlugin.WillDisappearForAction(const Action, Context: String; const JSONPayload: TJSONObject; const DeviceID: String);
 begin
-  FActionToContext.Remove(Action);
   FContextToAction.Remove(Context);
 end;
 
